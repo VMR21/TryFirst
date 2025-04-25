@@ -18,8 +18,7 @@ export default function Samples() {
   useEffect(() => {
     const fetchSamples = async () => {
       const querySnapshot = await getDocs(collection(db, 'samples'));
-      const list = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setSamples(list);
+      setSamples(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     };
     fetchSamples();
   }, []);
