@@ -14,7 +14,7 @@ export default function Login() {
       window.recaptchaVerifier = new RecaptchaVerifier('recaptcha', {
         size: 'invisible',
         callback: (response) => {
-          // reCAPTCHA solved automatically
+          console.log('reCAPTCHA solved');
         }
       }, auth);
     }
@@ -22,7 +22,7 @@ export default function Login() {
 
   const sendOtp = async () => {
     if (phone.length !== 10 || !/^[6-9]/.test(phone)) {
-      alert("Please enter a valid 10-digit Indian number");
+      alert("Please enter a valid 10-digit Indian mobile number");
       return;
     }
 
@@ -50,7 +50,7 @@ export default function Login() {
     setLoading(true);
     try {
       await confirm.confirm(otp);
-      console.log("OTP verified!");
+      console.log("OTP verified! Redirecting...");
       window.location.href = '/samples';
     } catch (err) {
       alert('Invalid OTP');
