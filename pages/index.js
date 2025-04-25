@@ -21,13 +21,16 @@ export default function Home() {
       <section className="px-6 md:px-12 py-12">
         <h3 className="text-2xl font-semibold mb-4">Latest Free Samples</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {["Bloom Moisturizer", "Brew Coffee Bar", "Aloe Vera Gel", "Berry Blast"].map((item, idx) => (
-            <div key={idx} className="bg-white text-black p-4 rounded">
-              <div className="h-32 bg-gray-300 mb-2"></div>
-              <h4 className="font-semibold">{item}</h4>
-              <p className="text-sm">{idx === 0 ? '50 ml' : idx === 1 ? '51g' : idx === 2 ? 'Herbal co.' : 'Granola'}</p>
-            </div>
-          ))}
+          {"Bloom Moisturizer|50 ml|skincare,Brew Coffee Bar|51g|snack,Aloe Vera Gel|Herbal co.|wellness,Berry Blast|Granola|nutrition".split(',').map((item, idx) => {
+            const [title, subtitle] = item.split('|');
+            return (
+              <div key={idx} className="bg-white text-black p-4 rounded">
+                <div className="h-32 bg-gray-300 mb-2"></div>
+                <h4 className="font-semibold">{title}</h4>
+                <p className="text-sm">{subtitle}</p>
+              </div>
+            );
+          })}
         </div>
       </section>
 
