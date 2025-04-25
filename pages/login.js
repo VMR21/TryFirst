@@ -9,11 +9,16 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
 
   const sendOtp = async () => {
+    if (phone.length !== 10) {
+      alert("Please enter a valid 10-digit Indian number");
+      return;
+    }
+
     const auth = getAuth(app);
     setLoading(true);
     window.recaptchaVerifier = new RecaptchaVerifier('recaptcha', { size: 'invisible' }, auth);
     try {
-      const result = await signInWithPhoneNumber(auth, '+91' + phone, window.recaptchaVerifier);
+      const result = await signInWithPhoneNumber(auth, "+91" + phone, window.recaptchaVerifier);
       setConfirm(result);
     } catch (err) {
       alert(err.message);
@@ -37,15 +42,21 @@ export default function Login() {
       <div className="bg-[#1e293b] p-8 rounded-md shadow-md w-full max-w-md">
         <h1 className="text-3xl font-bold mb-6 text-center">TryFirst</h1>
         <h2 className="text-lg mb-4 text-center">Login to Claim Free Samples</h2>
-        
-        <input
-          type="text"
-          placeholder="Enter Phone Number"
-          className="text-black p-3 rounded w-full mb-4"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          maxLength={10}
-        />
+
+        <div className="flex mb-4">
+          <span className="bg-gray-700 text-white px-4 flex items-center rounded-l-md">+91</span>
+          <input
+            type="text"
+            placeholder="Enter 10-digit Phone Number"
+            className="text-black p-3 w-full rounded-r-md"
+            value={phone}
+            onChange={(e) => {
+              const cleaned = e.target.value.replace(/\D/g, '').slice(0, 10);
+              setPhone(cleaned);
+            }}
+            maxLength={10}
+          />
+        </div>
 
         {confirm && (
           <input
