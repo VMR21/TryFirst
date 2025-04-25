@@ -16,13 +16,20 @@ export default function Login() {
 
     const auth = getAuth(app);
     setLoading(true);
-    window.recaptchaVerifier = new RecaptchaVerifier('recaptcha', { size: 'invisible' }, auth);
+    console.log("Sending OTP...");
+
     try {
+      if (!window.recaptchaVerifier) {
+        window.recaptchaVerifier = new RecaptchaVerifier('recaptcha', { size: 'invisible' }, auth);
+      }
       const result = await signInWithPhoneNumber(auth, "+91" + phone, window.recaptchaVerifier);
       setConfirm(result);
+      console.log("OTP sent!");
     } catch (err) {
-      alert(err.message);
+      console.error("OTP send failed:", err.message);
+      alert("Failed to send OTP: " + err.message);
     }
+
     setLoading(false);
   };
 
@@ -30,6 +37,7 @@ export default function Login() {
     setLoading(true);
     try {
       await confirm.confirm(otp);
+      console.log("OTP verified! Redirecting...");
       window.location.href = '/samples';
     } catch (err) {
       alert('Invalid OTP');
