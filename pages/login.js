@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
 import { app } from '../utils/firebase';
 
@@ -7,29 +7,42 @@ export default function Login() {
   const [otp, setOtp] = useState('');
   const [confirm, setConfirm] = useState(null);
   const [loading, setLoading] = useState(false);
+  const auth = getAuth(app);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && !window.recaptchaVerifier) {
+      window.recaptchaVerifier = new RecaptchaVerifier('recaptcha', {
+        size: 'invisible',
+        callback: (response) => {
+          // reCAPTCHA solved automatically
+        }
+      }, auth);
+    }
+  }, []);
 
   const sendOtp = async () => {
-    if (phone.length !== 10) {
+    if (phone.length !== 10 || !/^[6-9]/.test(phone)) {
       alert("Please enter a valid 10-digit Indian number");
       return;
     }
 
-    const auth = getAuth(app);
-    setLoading(true);
-    console.log("Sending OTP...");
+    const attempts = localStorage.getItem('otpAttempts') || 0;
+    if (attempts >= 3) {
+      alert("Too many OTP attempts. Try again later.");
+      return;
+    }
+    localStorage.setItem('otpAttempts', parseInt(attempts) + 1);
 
+    setLoading(true);
     try {
-      if (!window.recaptchaVerifier) {
-        window.recaptchaVerifier = new RecaptchaVerifier('recaptcha', { size: 'invisible' }, auth);
-      }
-      const result = await signInWithPhoneNumber(auth, "+91" + phone, window.recaptchaVerifier);
+      const appVerifier = window.recaptchaVerifier;
+      const result = await signInWithPhoneNumber(auth, "+91" + phone, appVerifier);
       setConfirm(result);
       console.log("OTP sent!");
     } catch (err) {
-      console.error("OTP send failed:", err.message);
+      console.error("OTP ERROR:", err.message);
       alert("Failed to send OTP: " + err.message);
     }
-
     setLoading(false);
   };
 
@@ -37,7 +50,7 @@ export default function Login() {
     setLoading(true);
     try {
       await confirm.confirm(otp);
-      console.log("OTP verified! Redirecting...");
+      console.log("OTP verified!");
       window.location.href = '/samples';
     } catch (err) {
       alert('Invalid OTP');
