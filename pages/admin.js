@@ -1,41 +1,25 @@
-import { useEffect, useState } from 'react';
-import { collection, addDoc } from 'firebase/firestore';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { db, app } from '../utils/firebase';
+import { useState } from "react";
+import { db } from "@/firebase";
+import { addDoc, collection } from "firebase/firestore";
 
-export default function Admin() {
-  const [name, setName] = useState('');
-  const [desc, setDesc] = useState('');
+export default function AdminPage() {
+  const [data, setData] = useState({ name: "", description: "", image: "" });
 
-  useEffect(() => {
-    const auth = getAuth(app);
-    onAuthStateChanged(auth, user => {
-      if (!user || user.email !== "admin@tryfirst.in") {
-        alert("Access Denied");
-        window.location.href = "/";
-      }
+  const submit = async () => {
+    await addDoc(collection(db, "samples"), {
+      ...data,
+      timestamp: Date.now()
     });
-  }, []);
-
-  const addSample = async () => {
-    await addDoc(collection(db, "samples"), { name, description: desc });
-    alert("Sample added!");
+    alert("Sample uploaded");
   };
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-6">
-      <h2 className="text-2xl font-bold mb-4">Admin: Add Sample</h2>
-      <input
-        className="text-black p-2 mb-2 w-64"
-        placeholder="Sample Name"
-        onChange={e => setName(e.target.value)}
-      />
-      <input
-        className="text-black p-2 mb-4 w-64"
-        placeholder="Description"
-        onChange={e => setDesc(e.target.value)}
-      />
-      <button onClick={addSample} className="bg-white text-black px-4 py-2">Add Sample</button>
+    <div className="min-h-screen bg-[#0f172a] text-white p-6">
+      <h1 className="text-xl font-bold mb-4">Add New Sample</h1>
+      <input className="block mb-2 p-2 text-black rounded" placeholder="Sample Name" onChange={e => setData(d => ({ ...d, name: e.target.value }))} />
+      <input className="block mb-2 p-2 text-black rounded" placeholder="Description" onChange={e => setData(d => ({ ...d, description: e.target.value }))} />
+      <input className="block mb-2 p-2 text-black rounded" placeholder="Image URL" onChange={e => setData(d => ({ ...d, image: e.target.value }))} />
+      <button className="bg-blue-600 px-4 py-2 rounded" onClick={submit}>Upload</button>
     </div>
   );
 }
